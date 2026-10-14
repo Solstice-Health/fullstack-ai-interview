@@ -33,3 +33,11 @@ main { max-width: 860px; margin: 0 auto; padding: 16px; }
 button.link { background: none; border: 0; color: #a1260d; cursor: pointer; padding: 0; font-size: 1em; }
 .message.error { color: #a1260d; }
 .message.info { color: var(--accent); }
+.dev-panel { margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--line); display: grid; gap: 10px; }
+.samples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { font: inherit; font-size: 0.85em; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 3px 10px; cursor: pointer; }
+.chip.active { border-color: var(--accent); background: #eef3ff; }
+.raw-actions { display: flex; gap: 10px; align-items: center; margin: 8px 0; }
+.raw { background: #fff; border: 1px solid var(--line); padding: 10px; max-height: 320px; overflow: auto; font-size: 0.8em; margin: 0; }
+.raw.error { color: #a1260d; }
+details summary { cursor: pointer; font-weight: 600; }

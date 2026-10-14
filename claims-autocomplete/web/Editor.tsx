@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type KeyboardEvent } from 'react';
 import type { AssetNode, InsertError, Suggestion } from '../shared/types';
-import { useClaimsApi, type AssetView } from './api';
+import { useClaimsApi, type AssetView, type SampleQuery } from './api';
+import { DevPanel } from './DevPanel';
 import { SuggestionsDropdown } from './SuggestionsDropdown';
 import { useClaimSuggestions } from './useClaimSuggestions';
 
@@ -27,7 +28,8 @@ export function Editor({ assetId, dev = false, useSuggestions = useClaimSuggesti
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(true);
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null);
-  const { suggestions, status } = useSuggestions(draft, assetId);
+  const { suggestions, status, missing } = useSuggestionsOrNotice(useSuggestions, draft, assetId);
+  const [samples, setSamples] = useState<SampleQuery[]>([]);
 
   const reload = useCallback(() => {
     api.getAsset(assetId).then(setView, (err: unknown) => setMessage({ kind: 'error', text: String(err) }));
@@ -38,6 +40,23 @@ export function Editor({ assetId, dev = false, useSuggestions = useClaimSuggesti
     setDraft('');
     reload();
   }, [reload]);
+
+  // Dev only: example queries for this asset; the first one pre-fills the composer.
+  useEffect(() => {
+    if (!dev || !api.samples) return;
+    let live = true;
+    api.samples(assetId).then(
+      (list) => {
+        if (!live) return;
+        setSamples(list);
+        if (list[0]) setDraft((d) => d || list[0].query);
+      },
+      () => live && setSamples([]),
+    );
+    return () => {
+      live = false;
+    };
+  }, [api, assetId, dev]);
 
   useEffect(() => setActive(0), [suggestions]);
 
@@ -124,7 +143,13 @@ export function Editor({ assetId, dev = false, useSuggestions = useClaimSuggesti
           }}
           onKeyDown={onKeyDown}
         />
-        {open && (
+        {missing && (
+          <p className="message info" role="status">
+            <code>useClaimSuggestions</code> in <code>web/useClaimSuggestions.ts</code> isn't implemented yet. Use the raw API panel below to try the
+            server on its own.
+          </p>
+        )}
+        {open && !missing && (
           <SuggestionsDropdown
             suggestions={suggestions}
             status={status}
@@ -152,6 +177,30 @@ export function Editor({ assetId, dev = false, useSuggestions = useClaimSuggesti
           </p>
         )}
       </div>
+      {dev && (
+        <DevPanel
+          assetId={assetId}
+          query={draft}
+          samples={samples}
+          onPickSample={(q) => {
+            setDraft(q);
+            setOpen(true);
+            setMessage(null);
+          }}
+        />
+      )}
     </section>
   );
+}
+
+/** Runs the suggestions hook, but shows a notice instead of crashing while it is still a stub. */
+function useSuggestionsOrNotice(use: typeof useClaimSuggestions, query: string, assetId: string) {
+  try {
+    return { ...use(query, assetId), missing: false };
+  } catch (err) {
+    if (err instanceof Error && err.message === 'Not implemented') {
+      return { suggestions: [] as Suggestion[], status: 'idle' as const, missing: true };
+    }
+    throw err;
+  }
 }

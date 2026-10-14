@@ -125,7 +125,12 @@ Add your own tests anywhere under `test/` (files ending in `.test.ts` or `.test.
 
 ## Running the app
 
-`npm run dev`, then open http://localhost:5173. Pick a writer and an asset, and type in the composer. Each suggestion has a "revoke (dev)" button so you can watch what happens after a revocation. Add `?chaos=1` to the URL to deliver suggest responses late and out of order.
+`npm run dev`, then open http://localhost:5173. The page opens on a writer and asset that have example queries, with the first example already typed in the composer.
+
+- **Try chips** under the composer fill in example queries for the current asset, including paraphrases. Hover one to see the claim it is meant to find.
+- **Raw API response** calls `GET /api/suggest` with the composer text and shows the JSON and timing. It works before `useClaimSuggestions` is implemented, so you can test the server on its own.
+- Each suggestion has a "revoke (dev)" button so you can watch what happens after a revocation.
+- The URL keeps the writer and asset (`?user=u_007&asset=as_0210`), so you can reload or share it. Add `&chaos=1` to deliver suggest responses late and out of order.
 
 Until your code is in, the API answers suggest and insert with HTTP 500 and the editor shows the "Not implemented" error.
 

@@ -1,5 +1,8 @@
 import { createContext, createElement, useContext, type ReactNode } from 'react';
 import type { Asset, AssetNode, Brand, InsertResult, Suggestion } from '../shared/types';
+import type { SampleQuery } from '../server/devSamples';
+
+export type { SampleQuery };
 
 export interface AssetSummary extends Asset {
   brandName: string;
@@ -21,6 +24,8 @@ export interface ClaimsApi {
   addText(assetId: string, text: string): Promise<void>;
   /** Dev only: revokes a claim so you can watch what happens. */
   revokeClaim(claimId: string): Promise<void>;
+  /** Dev only: example queries for an asset, with the claim each one is meant to find. */
+  samples?(assetId: string): Promise<SampleQuery[]>;
 }
 
 export class ApiError extends Error {
@@ -62,6 +67,7 @@ export function httpClaimsApi(userId: string, baseUrl = ''): ClaimsApi {
     revokeClaim: async (claimId) => {
       await call('POST', `/api/dev/claims/${encodeURIComponent(claimId)}/revoke`, {});
     },
+    samples: (assetId) => call<SampleQuery[]>('GET', `/api/dev/samples?${new URLSearchParams({ assetId })}`),
   };
 }
 

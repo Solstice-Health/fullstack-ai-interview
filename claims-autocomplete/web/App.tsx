@@ -5,8 +5,19 @@ import { Editor } from './Editor';
 import { ErrorBoundary } from './ErrorBoundary';
 import { createFakeNetwork } from './fakeNetwork';
 
-// Add ?chaos=1 to the URL to route suggest calls through the fake network with random delays.
-const chaos = new URLSearchParams(window.location.search).has('chaos');
+// URL options: ?user=u_001&asset=as_0001 opens that writer and asset (the page keeps them in the URL),
+// and ?chaos=1 routes suggest calls through the fake network with random delays.
+const params = new URLSearchParams(window.location.search);
+const chaos = params.has('chaos');
+
+function syncUrl(userId: string, assetId: string) {
+  const next = new URLSearchParams(window.location.search);
+  if (userId) next.set('user', userId);
+  if (assetId) next.set('asset', assetId);
+  else next.delete('asset');
+  const url = `${window.location.pathname}?${next}`;
+  if (url !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(null, '', url);
+}
 
 export function App() {
   const [users, setUsers] = useState<User[]>([]);
@@ -35,12 +46,18 @@ export function App() {
     };
   }, [userId]);
 
+  // The asset to open once the writer's assets load: from the URL, else the demo default.
+  const [wantedAsset, setWantedAsset] = useState(params.get('asset') ?? '');
+
   useEffect(() => {
-    fetch('/api/users')
-      .then((r) => r.json())
-      .then((list: User[]) => {
+    const start: Promise<{ userId?: string; assetId?: string }> = params.get('user')
+      ? Promise.resolve({ userId: params.get('user')! })
+      : fetch('/api/dev/start').then((r) => (r.ok ? r.json() : {}), () => ({}));
+    Promise.all([fetch('/api/users').then((r) => r.json() as Promise<User[]>), start])
+      .then(([list, s]) => {
         setUsers(list);
-        setUserId((id) => id || list[0]?.id || '');
+        if (s.assetId) setWantedAsset((a) => a || s.assetId!);
+        setUserId(list.some((u) => u.id === s.userId) ? s.userId! : (list[0]?.id ?? ''));
       })
       .catch(() => setUsers([]));
   }, []);
@@ -50,9 +67,14 @@ export function App() {
     setAssetId('');
     api.listAssets().then((list) => {
       setAssets(list);
-      setAssetId(list[0]?.id ?? '');
+      setAssetId(list.some((a) => a.id === wantedAsset) ? wantedAsset : (list[0]?.id ?? ''));
+      setWantedAsset('');
     });
+    // wantedAsset is read once per writer change on purpose.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api]);
+
+  useEffect(() => syncUrl(userId, assetId), [userId, assetId]);
 
   return (
     <main>

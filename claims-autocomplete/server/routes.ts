@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import type { AppDeps } from './app';
+import { defaultStart, samplesForAsset } from './devSamples';
 import { ForbiddenError, InvalidQueryError } from './errors';
 import { insertClaim } from './insertClaim';
 import type { SuggestRequest } from './suggestService';
@@ -27,6 +28,8 @@ const MAX_K = 20;
  *   GET  /api/assets/:id                        -> { asset, brand, content }
  *   POST /api/assets/:id/text {text}            -> appends a free-text node
  *   POST /api/dev/claims/:id/revoke             -> revokes a claim (dev only)
+ *   GET  /api/dev/start                         -> { userId, assetId } to open the demo on (dev only)
+ *   GET  /api/dev/samples?assetId=              -> example queries for an asset (dev only)
  */
 export function registerRoutes(app: FastifyInstance, ctx: RouteContext): void {
   const { deps, service } = ctx;
@@ -90,6 +93,14 @@ export function registerRoutes(app: FastifyInstance, ctx: RouteContext): void {
       const { id } = req.params as { id: string };
       if (!deps.store.get(id)) return reply.code(404).send({ error: 'unknown claim' });
       return deps.store.revoke(id);
+    });
+
+    app.get('/api/dev/start', async (_req, reply) => defaultStart(deps) ?? reply.code(404).send({ error: 'no example data' }));
+
+    app.get('/api/dev/samples', async (req, reply) => {
+      const assetId = (req.query as { assetId?: string }).assetId ?? '';
+      if (!deps.entitlements.canAccessAsset(userId(req), assetId)) return reply.code(403).send({ error: 'forbidden' });
+      return samplesForAsset(deps, assetId);
     });
   }
 }
