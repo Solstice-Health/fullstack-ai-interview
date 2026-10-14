@@ -20,4 +20,16 @@ npm test          # runs the test suite
 
 Each folder's README explains what is provided, what you implement, and how to run the app.
 
+## Run with Docker
+
+From the repo root:
+
+```bash
+docker compose up claims-autocomplete   # http://localhost:5173
+docker compose up collab-editor         # http://localhost:5174
+docker compose up object-storage        # http://localhost:5175
+```
+
+Each project uses a built-in fake AI by default. To use a real model, copy `.env.example` to `.env` and set `OPENROUTER_API_KEY`. Tests always use the fakes.
+
 AI tools are welcome while you build. Read, run and question what they write: in the debrief we'll ask you to walk through your code.

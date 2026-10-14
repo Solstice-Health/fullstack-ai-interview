@@ -14,7 +14,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["src", "sim", "shared", "test", "web", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src", "sim", "shared", "test", "web", "server", "vite.config.ts", "vitest.config.ts"]
 }

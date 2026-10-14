@@ -128,3 +128,21 @@ Add your own tests anywhere under `test/` (files ending in `.test.ts` or `.test.
 `npm run dev`, then open http://localhost:5173. Pick a writer and an asset, and type in the composer. Each suggestion has a "revoke (dev)" button so you can watch what happens after a revocation. Add `?chaos=1` to the URL to deliver suggest responses late and out of order.
 
 Until your code is in, the API answers suggest and insert with HTTP 500 and the editor shows the "Not implemented" error.
+
+## Run with Docker
+
+From the repo root:
+
+```bash
+docker compose up claims-autocomplete
+```
+
+Then open http://localhost:5173. The API is on http://localhost:3000.
+
+## Real AI (optional)
+
+By default the dev server uses `FakeEmbedder`. To use real embeddings from OpenRouter, copy `.env.example` (repo root) to `.env` and set `OPENROUTER_API_KEY`. Running `npm run dev` without Docker, export it in your shell instead. `OPENROUTER_EMBEDDING_MODEL` picks the model (default `openai/text-embedding-3-small`).
+
+The server logs which embedder is active. Your code doesn't change: `deps.embedder` has the same methods either way. Real vectors have 1536 dimensions, and a real call takes a few hundred ms, much longer than the fake's 80 ms.
+
+The first start embeds all claims (about 2 minutes) and caches the vectors in `data/.cache/`, so later starts are fast. Tests always use the fakes.

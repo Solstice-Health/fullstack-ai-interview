@@ -16,6 +16,20 @@ npm run dev         # web UI at http://localhost:5173: three simulated tabs on o
 Run one file or one check: `npx vitest run test/shared/convergence.test.ts -t "#2"`.
 Fuzzed checks run several seeds. Pick your own with `FUZZ_SEED=42` (one seed) or `FUZZ_SEEDS=1-50`.
 
+## Run with Docker
+
+From the repo root:
+
+```bash
+docker compose up collab-editor   # web UI at http://localhost:5174
+```
+
+## Real AI (optional)
+
+By default "Ask AI" uses the fake AI. For real proposals, copy `.env.example` to `.env` in the repo root and set `OPENROUTER_API_KEY`, then restart `npm run dev` or the container. The header shows which AI is active. The key stays in the dev server (`server/aiProxy.ts`); the browser only calls `/api/ai/*`.
+
+Real proposals take a few seconds and reach `CollabClient.receiveProposal` the same way fake ones do, so other tabs may have edited the text by then. The tests always use the fake AI.
+
 ## What you implement
 
 | File | Class | Called by |
@@ -68,6 +82,7 @@ You choose how edits merge and what goes over the wire. Messages are opaque to t
 | `sim/fuzz.ts` | `runFuzz(net, clients, { seed, edits })`: seeded random typing for convergence checks. |
 | `sim/random.ts` | `Rng`: the seeded random number generator used everywhere. |
 | `server/fakeAI.ts` | `FakeAI.request({ baseVersion, text, start, end }, onReady)`: returns a proposal after a delay (default 12 s simulated). |
+| `server/aiProxy.ts` | Optional real AI for the web UI, served by the Vite dev server: `GET /api/ai/status`, `POST /api/ai/propose`. Not used by the tests. |
 | `server/auditLog.ts` | `AuditLog`: append-only store. `AuditEntry` is the record format the audit check replays. |
 | `fixtures/emailBody.ts` | `EMAIL_BODY`: the sample pharma email used by the tests and the UI. |
 | `web/` | React UI: a textarea per tab, Online/Offline toggles, comment and proposal sidebars with Accept and Reject, a server panel with checkpoint, approve and the audit log. |

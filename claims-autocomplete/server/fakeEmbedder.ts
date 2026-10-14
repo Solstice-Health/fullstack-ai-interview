@@ -49,7 +49,20 @@ export interface EmbedderStats {
   texts: number;
 }
 
-export class FakeEmbedder {
+/**
+ * What the app needs from an embedder. FakeEmbedder implements it; `npm run dev`
+ * swaps in OpenRouterEmbedder when OPENROUTER_API_KEY is set.
+ */
+export interface Embedder {
+  /** Length of every vector this embedder returns. */
+  readonly dims: number;
+  readonly stats: EmbedderStats;
+  setOptions(options: EmbedderOptions): void;
+  embed(text: string, opts?: { signal?: AbortSignal }): Promise<Float32Array>;
+  embedBatch(texts: string[], opts?: { signal?: AbortSignal }): Promise<Float32Array[]>;
+}
+
+export class FakeEmbedder implements Embedder {
   readonly dims = EMBEDDING_DIMS;
   readonly stats: EmbedderStats = { calls: 0, batchCalls: 0, texts: 0 };
   private options: Required<EmbedderOptions>;

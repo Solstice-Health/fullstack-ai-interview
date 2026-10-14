@@ -121,3 +121,17 @@ button.offline {
   max-height: 200px;
   overflow: auto;
 }
+.ai-mode {
+  padding: 2px 8px;
+  background: #eee;
+  font-size: 12px;
+}
+.ai-mode.real {
+  background: #e3ecfb;
+}
+input.instruction {
+  font: inherit;
+  padding: 3px 6px;
+  flex: 1;
+  min-width: 160px;
+}

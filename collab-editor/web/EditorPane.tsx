@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { requestProposal } from './ai';
 import { attempt, type Demo } from './demo';
 import { diffText } from './textDiff';
 import type { CommentView, ProposalView } from '../shared/types';
@@ -8,6 +9,8 @@ export function EditorPane({ demo, clientId, refresh }: { demo: Demo; clientId: 
   const client = session.client(clientId);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const selection = useRef({ start: 0, end: 0 });
+  const [instruction, setInstruction] = useState('');
+  const [waiting, setWaiting] = useState(0);
 
   const text = attempt(demo, `${clientId}.getText`, () => client.getText(), '');
   const comments = attempt<CommentView[]>(demo, `${clientId}.getComments`, () => client.getComments(), []);
@@ -51,12 +54,21 @@ export function EditorPane({ demo, clientId, refresh }: { demo: Demo; clientId: 
   const askAI = () => {
     const { start, end } = selection.current;
     if (start === end) return alert('Select some text first.');
-    attempt(demo, `${clientId}.askAI`, () =>
-      session.ai.request(
-        { baseVersion: client.getVersion(), text: client.getText(), start, end, instruction: 'rewrite' },
-        (p) => attempt(demo, `${clientId}.receiveProposal`, () => client.receiveProposal(p)),
-      ),
-    );
+    attempt(demo, `${clientId}.askAI`, () => {
+      requestProposal(
+        session,
+        { baseVersion: client.getVersion(), text: client.getText(), start, end, instruction: instruction.trim() || 'rewrite' },
+        (p) => {
+          setWaiting((n) => n - 1);
+          attempt(demo, `${clientId}.receiveProposal`, () => client.receiveProposal(p));
+        },
+        (message) => {
+          setWaiting((n) => n - 1);
+          demo.errors.set(`${clientId}.askAI`, message);
+        },
+      );
+      setWaiting((n) => n + 1);
+    });
   };
 
   return (
@@ -82,8 +94,23 @@ export function EditorPane({ demo, clientId, refresh }: { demo: Demo; clientId: 
       />
       <div className="actions">
         <button onClick={addComment}>Comment on selection</button>
-        <button onClick={askAI}>Ask AI to rewrite selection</button>
       </div>
+      <form
+        className="actions"
+        onSubmit={(e) => {
+          e.preventDefault();
+          askAI();
+        }}
+      >
+        <input
+          className="instruction"
+          value={instruction}
+          placeholder="Ask AI about the selection, e.g. shorten"
+          onChange={(e) => setInstruction(e.target.value)}
+        />
+        <button type="submit">Ask AI</button>
+        {waiting > 0 && <span className="state">waiting for {waiting} AI proposal{waiting > 1 ? 's' : ''}…</span>}
+      </form>
       <div className="sidebar">
         <h3>Comments</h3>
         {comments.length === 0 && <p className="empty">None</p>}

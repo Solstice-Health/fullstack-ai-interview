@@ -16,6 +16,18 @@ npm run dev         # uploader UI at http://localhost:5173, against an in-browse
 
 Requires Node 22 or newer.
 
+## Run with Docker
+
+From the repo root:
+
+```bash
+docker compose up object-storage   # uploader UI at http://localhost:5175
+```
+
+## Real AI (optional)
+
+After an upload completes, the UI runs post-upload processing on it and shows which mode produced the result. By default that is the simulated processor. To describe and tag uploads with a real model instead, copy `.env.example` to `.env` in the repo root and set `OPENROUTER_API_KEY`. The key stays in the dev server (`server/aiProxy.ts`); the browser calls `/api/ai/*`. Tests always use the simulator, whatever is set.
+
 ## What you implement
 
 | File | What |
@@ -75,7 +87,8 @@ The constructor gets a `StoreEnv` (`sim/env.ts`): everything the server process 
 | `test/fixtures/keys.ts` | Keys that real clients send. |
 | `test/harness/` | Tests for the simulator itself. These pass from the start. |
 | `test/shared/` | The shared checks below, skipped. |
-| `web/` | Uploader UI (`App.tsx`), an in-browser fake upload server and a fake network that drops connections. |
+| `web/` | Uploader UI (`App.tsx`), an in-browser fake upload server and a fake network that drops connections. `aiExtractor.ts` runs post-upload processing for the UI. |
+| `server/aiProxy.ts` | Dev-server proxy to OpenRouter, used only by `npm run dev`. |
 
 A process restart builds a new `ObjectStore` over the same `env.db`, `env.cluster` and `env.queue`. The constructor must cope with tables that already exist.
 
