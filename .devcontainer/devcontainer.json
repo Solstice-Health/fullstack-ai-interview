@@ -1,0 +1,11 @@
+{
+  "name": "fullstack-ai-interview",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "postCreateCommand": "for d in claims-autocomplete collab-editor object-storage; do (cd $d && npm install); done",
+  "customizations": {
+    "vscode": {
+      "extensions": ["vitest.explorer", "dbaeumer.vscode-eslint"]
+    }
+  },
+  "forwardPorts": [5173, 3000]
+}

@@ -1,0 +1,35 @@
+:root {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #1d1d1f;
+  background: #f6f5f2;
+  --accent: #2f5bd3;
+  --muted: #6b6b70;
+  --line: #dcdad4;
+}
+body { margin: 0; }
+main { max-width: 860px; margin: 0 auto; padding: 16px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 8px 0 16px; border-bottom: 1px solid var(--line); }
+.toolbar select { max-width: 320px; }
+.muted { color: var(--muted); font-size: 0.85em; }
+.editor header h2 { margin: 16px 0 4px; font-size: 1.2em; }
+.content { background: #fff; border: 1px solid var(--line); padding: 16px; min-height: 120px; margin: 12px 0; }
+.content p { margin: 0 0 10px; line-height: 1.5; }
+.claim-node { background: #eef3ff; border-left: 3px solid var(--accent); padding: 4px 8px; user-select: all; }
+.claim-node sup { color: var(--accent); margin-left: 2px; }
+.composer { position: relative; }
+.composer textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 8px; border: 1px solid var(--line); }
+.composer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+.dropdown { background: #fff; border: 1px solid var(--line); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); margin-top: 2px; }
+.dropdown ul { list-style: none; margin: 0; padding: 0; }
+.dropdown li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #f0efeb; }
+.dropdown li.active { background: #eef3ff; }
+.dropdown-note { padding: 8px 10px; color: var(--muted); }
+.dropdown-note.error { color: #a1260d; }
+.suggestion-text { display: block; }
+.suggestion-meta { display: flex; gap: 8px; align-items: center; margin-top: 2px; font-size: 0.8em; }
+.badge { font-size: 0.75em; padding: 1px 6px; border-radius: 3px; background: #e8e6e0; }
+.badge.semantic { background: #f3e8ff; }
+.badge.both { background: #e3f6e8; }
+button.link { background: none; border: 0; color: #a1260d; cursor: pointer; padding: 0; font-size: 1em; }
+.message.error { color: #a1260d; }
+.message.info { color: var(--accent); }
