@@ -136,13 +136,13 @@ Until your code is in, the API answers suggest and insert with HTTP 500 and the 
 
 ## Run with Docker
 
-From the repo root:
+From this folder:
 
 ```bash
-docker compose up claims-autocomplete
+docker compose up
 ```
 
-Then open http://localhost:5173. The API is on http://localhost:3000.
+Then open http://localhost:5173. The API answers on the same port under `/api`.
 
 ## Real AI (optional)
 

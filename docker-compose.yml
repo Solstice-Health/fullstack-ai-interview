@@ -1,51 +1,12 @@
-# Serve each starter project locally.
+# Each project has its own docker-compose.yml; `cd <folder> && docker compose up` runs one.
+# This file includes all three so they can also be started from the repo root:
 #   docker compose up claims-autocomplete   # http://localhost:5173 (API proxied under /api)
 #   docker compose up collab-editor         # http://localhost:5174
 #   docker compose up object-storage        # http://localhost:5175
 #   docker compose up                       # all three
 # Real AI is optional: put OPENROUTER_API_KEY in .env (see .env.example).
 
-x-node-app: &node-app
-  image: node:22-bookworm-slim
-  working_dir: /app
-  command: sh -c "npm ci --no-audit --no-fund && npm run dev"
-  env_file:
-    - path: .env
-      required: false
-  environment: &node-env
-    HOST: 0.0.0.0
-    OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
-    OPENROUTER_CHAT_MODEL: ${OPENROUTER_CHAT_MODEL:-anthropic/claude-haiku-4.5}
-    OPENROUTER_EMBEDDING_MODEL: ${OPENROUTER_EMBEDDING_MODEL:-openai/text-embedding-3-small}
-  init: true
-  tty: true
-
-services:
-  claims-autocomplete:
-    <<: *node-app
-    volumes:
-      - ./claims-autocomplete:/app
-      - claims-node-modules:/app/node_modules
-    ports:
-      - "5173:5173"
-
-  collab-editor:
-    <<: *node-app
-    volumes:
-      - ./collab-editor:/app
-      - collab-node-modules:/app/node_modules
-    ports:
-      - "5174:5173"
-
-  object-storage:
-    <<: *node-app
-    volumes:
-      - ./object-storage:/app
-      - storage-node-modules:/app/node_modules
-    ports:
-      - "5175:5173"
-
-volumes:
-  claims-node-modules:
-  collab-node-modules:
-  storage-node-modules:
+include:
+  - claims-autocomplete/docker-compose.yml
+  - collab-editor/docker-compose.yml
+  - object-storage/docker-compose.yml

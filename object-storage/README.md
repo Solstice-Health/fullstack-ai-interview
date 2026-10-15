@@ -18,10 +18,10 @@ Requires Node 22 or newer.
 
 ## Run with Docker
 
-From the repo root:
+From this folder:
 
 ```bash
-docker compose up object-storage   # uploader UI at http://localhost:5175
+docker compose up   # uploader UI at http://localhost:5175
 ```
 
 ## Real AI (optional)

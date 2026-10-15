@@ -1,0 +1,27 @@
+# Serve this project with Docker. From this folder:
+#   docker compose up        # web UI on http://localhost:5174
+# Real AI is optional: put OPENROUTER_API_KEY in .env, in the repo root or in this folder
+# (see ../.env.example). Without a key "Ask AI" uses the fake AI.
+
+services:
+  collab-editor:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev"
+    env_file:
+      - path: ../.env
+        required: false
+      - path: .env
+        required: false
+    environment:
+      HOST: 0.0.0.0
+    init: true
+    tty: true
+    volumes:
+      - .:/app
+      - collab-node-modules:/app/node_modules
+    ports:
+      - "5174:5173"
+
+volumes:
+  collab-node-modules:

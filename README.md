@@ -22,13 +22,15 @@ Each folder's README explains what is provided, what you implement, and how to r
 
 ## Run with Docker
 
-From the repo root:
+Each folder has its own `docker-compose.yml`. From the folder:
 
 ```bash
-docker compose up claims-autocomplete   # http://localhost:5173
-docker compose up collab-editor         # http://localhost:5174
-docker compose up object-storage        # http://localhost:5175
+cd claims-autocomplete && docker compose up   # http://localhost:5173
+cd collab-editor && docker compose up         # http://localhost:5174
+cd object-storage && docker compose up        # http://localhost:5175
 ```
+
+From the repo root, `docker compose up <folder>` does the same.
 
 Each project uses a built-in fake AI by default. To use a real model, copy `.env.example` to `.env` and set `OPENROUTER_API_KEY`. Tests always use the fakes.
 

@@ -1,0 +1,27 @@
+# Serve this project with Docker. From this folder:
+#   docker compose up        # http://localhost:5173 (the API is proxied under /api)
+# Real embeddings are optional: put OPENROUTER_API_KEY in .env, in the repo root or in this
+# folder (see ../.env.example). Without a key the dev server uses the FakeEmbedder.
+
+services:
+  claims-autocomplete:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev"
+    env_file:
+      - path: ../.env
+        required: false
+      - path: .env
+        required: false
+    environment:
+      HOST: 0.0.0.0
+    init: true
+    tty: true
+    volumes:
+      - .:/app
+      - claims-node-modules:/app/node_modules
+    ports:
+      - "5173:5173"
+
+volumes:
+  claims-node-modules:

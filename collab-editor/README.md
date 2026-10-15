@@ -18,10 +18,10 @@ Fuzzed checks run several seeds. Pick your own with `FUZZ_SEED=42` (one seed) or
 
 ## Run with Docker
 
-From the repo root:
+From this folder:
 
 ```bash
-docker compose up collab-editor   # web UI at http://localhost:5174
+docker compose up   # web UI at http://localhost:5174
 ```
 
 ## Real AI (optional)
